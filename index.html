@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obiettivi Famiglia De Simone</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  margin:0;
+  background:#f4f4f4;
+}
+
+.container{
+  width:82%;
+  margin:0 auto;
+  background:white;
+  padding:35px;
+  min-height:100vh;
+  box-shadow:0 0 25px #ccc;
+}
+
+h1{
+  text-align:center;
+  color:#2196f3;
+  font-size:48px;
+  margin-top:-10px;
+}
+
+.buttons{
+  display:flex;
+  gap:25px;
+  margin:55px 0 50px 10px;
+}
+
+button{
+  border:none;
+  border-radius:13px;
+  padding:18px 28px;
+  color:white;
+  font-size:25px;
+  cursor:pointer;
+}
+
+.tema{
+  background:#2e2e2e;
+}
+
+.cancella{
+  background:#f23838;
+}
+
+.progress-box{
+  width:100%;
+  height:48px;
+  background:#ddd;
+  border-radius:25px;
+  overflow:hidden;
+  margin-bottom:40px;
+  color:white;
+  font-size:26px;
+}
+
+.progress{
+  height:100%;
+  width:0%;
+  background:#2196f3;
+  line-height:48px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:28px;
+}
+
+th{
+  background:#2498e8;
+  color:white;
+  padding:25px;
+  border:2px solid #ccc;
+}
+
+td{
+  padding:20px;
+  border:2px solid #ccc;
+  text-align:center;
+}
+
+td:first-child{
+  text-align:left;
+  padding-left:30px;
+  white-space:nowrap;
+}
+
+input[type="text"]{
+  width:95%;
+  height:44px;
+  border:1px solid #ddd;
+  border-radius:9px;
+  font-size:22px;
+  padding:5px 10px;
+}
+
+input[type="date"]{
+  width:145px;
+  height:48px;
+  border:none;
+  border-radius:25px;
+  background:#ddd;
+  font-size:18px;
+  padding:5px;
+}
+
+select{
+  background:#ddd;
+  border:none;
+  border-radius:20px;
+  padding:10px;
+  font-size:18px;
+}
+
+input[type="checkbox"]{
+  width:30px;
+  height:30px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🏠 Obiettivi Famiglia De Simone</h1>
+
+<div class="buttons">
+  <button class="tema" onclick="cambiaTema()">🌙 Tema</button>
+  <button class="cancella" onclick="cancellaTutto()">🗑️ Cancella tutto</button>
+</div>
+
+<div class="progress-box">
+  <div class="progress" id="progress">0%</div>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th>Persona</th>
+  <th>Obiettivo</th>
+  <th>Note</th>
+  <th>Scadenza</th>
+  <th>Priorità</th>
+  <th>✔</th>
+</tr>
+</thead>
+
+<tbody id="tabella">
+<tr data-persona="mamma">
+  <td>👩 Mamma</td>
+  <td><input type="text" data-campo="obiettivo"></td>
+  <td><input type="text" data-campo="note"></td>
+  <td><input type="date" data-campo="scadenza"></td>
+  <td>
+    <select data-campo="priorita">
+      <option>Bassa</option>
+      <option>Media</option>
+      <option>Alta</option>
+    </select>
+  </td>
+  <td><input type="checkbox" data-campo="fatto"></td>
+</tr>
+
+<tr data-persona="papa">
+  <td>👨 Papà</td>
+  <td><input type="text" data-campo="obiettivo"></td>
+  <td><input type="text" data-campo="note"></td>
+  <td><input type="date" data-campo="scadenza"></td>
+  <td>
+    <select data-campo="priorita">
+      <option>Bassa</option>
+      <option>Media</option>
+      <option>Alta</option>
+    </select>
+  </td>
+  <td><input type="checkbox" data-campo="fatto"></td>
+</tr>
+
+<tr data-persona="betto">
+  <td>👦 Betto</td>
+  <td><input type="text" data-campo="obiettivo"></td>
+  <td><input type="text" data-campo="note"></td>
+  <td><input type="date" data-campo="scadenza"></td>
+  <td>
+    <select data-campo="priorita">
+      <option>Bassa</option>
+      <option>Media</option>
+      <option>Alta</option>
+    </select>
+  </td>
+  <td><input type="checkbox" data-campo="fatto"></td>
+</tr>
+
+<tr data-persona="genio">
+  <td>🤖 Genio</td>
+  <td><input type="text" data-campo="obiettivo"></td>
+  <td><input type="text" data-campo="note"></td>
+  <td><input type="date" data-campo="scadenza"></td>
+  <td>
+    <select data-campo="priorita">
+      <option>Bassa</option>
+      <option>Media</option>
+      <option>Alta</option>
+    </select>
+  </td>
+  <td><input type="checkbox" data-campo="fatto"></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "INSERISCI_API_KEY",
+  authDomain: "INSERISCI_AUTH_DOMAIN",
+  databaseURL: "INSERISCI_DATABASE_URL",
+  projectId: "INSERISCI_PROJECT_ID",
+  storageBucket: "INSERISCI_STORAGE_BUCKET",
+  messagingSenderId: "INSERISCI_MESSAGING_SENDER_ID",
+  appId: "INSERISCI_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const datiRef = ref(db, "obiettivi-famiglia");
+
+let caricamento = false;
+
+function salvaDati(){
+  if(caricamento) return;
+
+  const dati = {};
+
+  document.querySelectorAll("tr[data-persona]").forEach(riga=>{
+    const persona = riga.dataset.persona;
+
+    dati[persona] = {
+      obiettivo: riga.querySelector('[data-campo="obiettivo"]').value,
+      note: riga.querySelector('[data-campo="note"]').value,
+      scadenza: riga.querySelector('[data-campo="scadenza"]').value,
+      priorita: riga.querySelector('[data-campo="priorita"]').value,
+      fatto: riga.querySelector('[data-campo="fatto"]').checked
+    };
+  });
+
+  set(datiRef, dati);
+  aggiornaPercentuale();
+}
+
+function caricaDati(){
+  onValue(datiRef, snapshot=>{
+    const dati = snapshot.val();
+    if(!dati) return;
+
+    caricamento = true;
+
+    document.querySelectorAll("tr[data-persona]").forEach(riga=>{
+      const persona = riga.dataset.persona;
+      if(!dati[persona]) return;
+
+      riga.querySelector('[data-campo="obiettivo"]').value = dati[persona].obiettivo || "";
+      riga.querySelector('[data-campo="note"]').value = dati[persona].note || "";
+      riga.querySelector('[data-campo="scadenza"]').value = dati[persona].scadenza || "";
+      riga.querySelector('[data-campo="priorita"]').value = dati[persona].priorita || "Bassa";
+      riga.querySelector('[data-campo="fatto"]').checked = dati[persona].fatto || false;
+    });
+
+    caricamento = false;
+    aggiornaPercentuale();
+  });
+}
+
+function aggiornaPercentuale(){
+  const check = document.querySelectorAll('input[type="checkbox"]');
+  const fatti = document.querySelectorAll('input[type="checkbox"]:checked').length;
+  const percentuale = Math.round((fatti / check.length) * 100);
+
+  document.getElementById("progress").style.width = percentuale + "%";
+  document.getElementById("progress").textContent = percentuale + "%";
+}
+
+window.cancellaTutto = function(){
+  remove(datiRef);
+  document.querySelectorAll("input").forEach(input=>{
+    if(input.type === "checkbox") input.checked = false;
+    else input.value = "";
+  });
+  document.querySelectorAll("select").forEach(select=>select.value="Bassa");
+  aggiornaPercentuale();
+}
+
+window.cambiaTema = function(){
+  document.body.classList.toggle("scuro");
+}
+
+document.querySelectorAll("input, select").forEach(elemento=>{
+  elemento.addEventListener("input", salvaDati);
+  elemento.addEventListener("change", salvaDati);
+});
+
+caricaDati();
+aggiornaPercentuale();
+</script>
+
+</body>
+</html>
